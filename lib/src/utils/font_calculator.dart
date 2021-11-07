@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:adaptive_text/src/adaptive_widget.dart';
-import 'package:adaptive_text/src/utils/inline_span_extensions.dart';
 import 'package:flutter/material.dart';
 
 class FontCalculator {
@@ -20,76 +19,138 @@ class FontCalculator {
     return resultStyle;
   }
 
-  double calculateFont(
-    InlineSpan text,
-    double currentFontSize,
-    BoxConstraints constrains,
-    int maxLines, {
-    int tries = 0,
+  double _proccesSingleLine({
+    required InlineSpan text,
+    required double scale,
+    required BoxConstraints constrains,
   }) {
-    if (text is TextSpan && text.text == null) {
-      return currentFontSize;
-    }
-    if (tries >= 25) {
-      return currentFontSize;
-    }
-
     final tp = TextPainter(
       text: text,
       textAlign: widget.textAlign,
       textDirection: widget.textDirection,
-      maxLines: maxLines,
+      maxLines: 1,
+      textScaleFactor: scale,
     );
-    tp.layout(maxWidth: maxLines > 1 ? constrains.maxWidth : double.infinity);
-    if (maxLines > 1) {
-      final tp2 = TextPainter(
-        text: text,
-        textAlign: widget.textAlign,
-        textDirection: widget.textDirection,
-        maxLines: 100000,
-      );
-      tp2.layout(maxWidth: constrains.maxWidth);
-
-      if (tp2.height > tp.height) {
-        var scaleFactor = tp.height / tp2.height;
-        scaleFactor = max(scaleFactor, widget.heightAccurate);
-
-        return calculateFont(
-          text.scaleFontSize(scaleFactor),
-          currentFontSize * scaleFactor,
-          constrains,
-          maxLines,
-          tries: tries + 1,
-        );
-      }
-    }
-
-    if (tp.width <= 1 || tp.height <= 1) {
-      return currentFontSize;
-    }
-
-    var scaleDownWid = 1.0;
-    var scaleDownHei = 1.0;
+    tp.layout(maxWidth: double.infinity);
+    var scaleHeight = 1.0;
+    var scaleWidth = 1.0;
     if (tp.width > constrains.maxWidth) {
-      scaleDownWid = constrains.maxWidth / tp.width;
+      scaleWidth = constrains.maxWidth / tp.width;
     }
     if (tp.height > constrains.maxHeight) {
-      scaleDownHei = constrains.maxHeight / tp.height;
-      scaleDownHei = max(scaleDownHei, widget.heightAccurate);
+      scaleHeight = constrains.maxHeight / tp.height;
     }
-
-    final min2 = min(scaleDownWid, scaleDownHei);
-    if (min2 == 1) {
-      return currentFontSize;
+    final scaleDown = min(scaleHeight, scaleWidth);
+    if (scaleDown == 1) {
+      return scale;
     }
-    final scaleFactor = min(min2, 0.99);
+    return scale * scaleDown * 0.97;
+  }
 
-    return calculateFont(
-      text.scaleFontSize(scaleFactor),
-      currentFontSize * scaleFactor,
-      constrains,
-      maxLines,
-      tries: tries + 1,
+  double _proccesMultiLine({
+    required InlineSpan text,
+    required double scale,
+    required BoxConstraints constrains,
+    required int maxlines,
+  }) {
+    final directLinesCount = text.toPlainText().allMatches(r'\n').length + 1;
+    final linesCount = min(directLinesCount, maxlines);
+    final tp = TextPainter(
+      text: text,
+      textAlign: widget.textAlign,
+      textDirection: widget.textDirection,
+      maxLines: directLinesCount,
+      textScaleFactor: scale,
     );
+    tp.layout(maxWidth: double.infinity);
+    var scaleDown = 1.0;
+    if (tp.height > constrains.maxHeight) {
+      scaleDown = constrains.maxHeight / tp.height;
+    }
+    if (tp.width > constrains.maxWidth) {
+      scaleDown = min(constrains.maxWidth / tp.width, scaleDown);
+    }
+    final linesMetric1 = tp.computeLineMetrics();
+    var scaledTextHei1 = 0.0;
+    for (final element in linesMetric1) {
+      scaledTextHei1 += element.height;
+      scaledTextHei1 += element.ascent;
+      scaledTextHei1 += element.ascent;
+    }
+
+    log(
+      'scaleDown: $scaleDown\n'
+      'textHei: $scaledTextHei1\n'
+      'linesCount: ${linesMetric1.length}\n'
+      'tpHeight: ${tp.height}\n'
+      'tpWid: ${tp.width}\n'
+      'constrainsWid: ${constrains.maxWidth}\n'
+      'constrainsHeight: ${constrains.maxHeight}',
+    );
+    final tp2 = TextPainter(
+      text: text,
+      textAlign: widget.textAlign,
+      textDirection: widget.textDirection,
+      maxLines: linesCount,
+      textScaleFactor: scale * scaleDown,
+    );
+
+    tp2.layout(maxWidth: constrains.maxWidth);
+    final linesMetric = tp2.computeLineMetrics();
+    var scaledTextHei = 0.0;
+    for (final element in linesMetric) {
+      scaledTextHei += element.height;
+      scaledTextHei += element.ascent;
+      scaledTextHei += element.ascent;
+    }
+    var scaleDown2 = 1.0;
+    if (tp2.height > constrains.maxHeight) {
+      scaleDown2 = constrains.maxHeight / tp2.height;
+    }
+    log(
+      'scaleDown2: $scaleDown2\n'
+      'textHei: $scaledTextHei\n'
+      'test: ${constrains.maxHeight / maxlines}\n'
+      'linesCount: ${linesMetric.length}\n'
+      'tp2Height: ${tp2.height}\n'
+      'tp2Wid: ${tp2.width}\n'
+      'constrainsWid: ${constrains.maxWidth}\n'
+      'constrainsHeight: ${constrains.maxHeight}',
+    );
+    if (scaledTextHei < constrains.maxHeight) {
+      final freeSpace = (constrains.maxHeight - scaledTextHei);
+      final perLineSize = constrains.maxHeight / maxlines;
+      scaleDown2 = perLineSize / scaledTextHei;
+    }
+    tp2.didExceedMaxLines;
+    return scale * scaleDown * scaleDown2;
+  }
+
+  double calculateFont({
+    required InlineSpan text,
+    required double currentFontSize,
+    required BoxConstraints constrains,
+    required double scale,
+    int maxLines = 1,
+    int tries = 0,
+  }) {
+    if (text is TextSpan && text.text == null) {
+      return scale;
+    }
+    if (maxLines == 1) {
+      return _proccesSingleLine(
+          text: text, scale: scale, constrains: constrains);
+    } else {
+      return _proccesMultiLine(
+        text: text,
+        scale: scale,
+        constrains: constrains,
+        maxlines: maxLines,
+      );
+    }
+  }
+
+  log(String message) {
+    print('\x1B[32;1;4m${'=' * 40}\n$message\n${'=' * 40}\x1B[0m');
   }
 }
