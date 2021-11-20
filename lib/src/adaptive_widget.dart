@@ -29,7 +29,7 @@ abstract class AdaptiveWidget extends StatefulWidget {
 }
 
 mixin AdaptiveState<T extends AdaptiveWidget> on State<T> {
-  double? fontSize;
+  double? fontScale;
   double? _lastMaxWidth;
   double? _lastMaxHeight;
 
@@ -49,7 +49,7 @@ mixin AdaptiveState<T extends AdaptiveWidget> on State<T> {
   void didUpdateWidget(T oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.text.compareTo(oldWidget.text) != RenderComparison.identical) {
-      fontSize = null;
+      fontScale = null;
     }
     if (oldWidget.group != widget.group) {
       oldWidget.group?._remove(this);
@@ -64,37 +64,48 @@ mixin AdaptiveState<T extends AdaptiveWidget> on State<T> {
   Widget build(BuildContext context) =>
       LayoutBuilder(builder: (context, constrains) {
         final now = DateTime.now();
-        _lastMaxHeight ??= constrains.maxHeight;
-        _lastMaxWidth ??= constrains.maxWidth;
-        if (_lastMaxWidth == constrains.maxWidth &&
-            _lastMaxHeight == constrains.maxHeight &&
-            fontSize != null) {
-          if (fontSize != null) {
-            return buildAdaptive(context, widget.text,
-                DefaultTextStyle.of(context).style, fontSize!);
-          }
-        }
-        _lastMaxHeight = constrains.maxHeight;
-        _lastMaxWidth = constrains.maxWidth;
-
+        // _lastMaxHeight ??= constrains.maxHeight;
+        // _lastMaxWidth ??= constrains.maxWidth;
+        // if (_lastMaxWidth == constrains.maxWidth &&
+        //     _lastMaxHeight == constrains.maxHeight &&
+        //     fontScale != null) {
+        //   if (fontScale != null) {
+        //     return buildAdaptive(context, widget.text,
+        //         DefaultTextStyle.of(context).style, fontScale!);
+        //   }
+        // }
+        // _lastMaxHeight = constrains.maxHeight;
+        // _lastMaxWidth = constrains.maxWidth;
 
         final fontCalculator = FontCalculator(widget);
         var defaultFontSize =
             fontCalculator.getBiggestFromSpan(widget.text)?.fontSize;
         defaultFontSize ??= DefaultTextStyle.of(context).style.fontSize;
-
-        fontSize = fontCalculator.calculateFont(
-          text: widget.text,
+        final scale = MediaQuery.textScaleFactorOf(context);
+        final span = TextSpan(
+          text: widget.text.text,
+          style: DefaultTextStyle.of(context).style.merge(widget.text.style),
+          children: widget.text.children,
+        );
+        fontScale = fontCalculator.calculateFont(
+          text: span,
           currentFontSize: defaultFontSize!,
           constrains: constrains,
           maxLines: widget.maxLines,
-          scale: MediaQuery.textScaleFactorOf(context),
+          scale: scale,
         );
-        widget.group?._updateFontSize(this, fontSize!);
+        final size = fontCalculator.getBiggestFromSpan(span)!.fontSize!;
+        widget.group?._updateFontSize(this, size * fontScale!);
+        if (widget.group != null) {
+          final minFont = min(widget.group!._fontSize, size);
+          print(
+              '${span.toPlainText()}\tgroupSize:${widget.group!._fontSize}\tsize:${size * fontScale!}\n');
+          fontScale = min(fontScale!, minFont / size);
+        }
         print(
             '\x1B[31;1;4madaptive:${DateTime.now().difference(now).inMilliseconds}\x1B[0m');
         return buildAdaptive(context, widget.text,
-            DefaultTextStyle.of(context).style, fontSize!);
+            DefaultTextStyle.of(context).style, fontScale!);
       });
 
   void _notifySync() {

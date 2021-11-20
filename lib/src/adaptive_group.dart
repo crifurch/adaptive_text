@@ -27,7 +27,7 @@ class AdaptiveGroup {
 
     for (final textState in _listeners.keys) {
       if (textState.mounted) {
-        if (textState.fontSize != _fontSize) {
+        if (textState.fontScale != _fontSize) {
           textState._notifySync();
         }
       }

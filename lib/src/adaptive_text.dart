@@ -12,7 +12,6 @@ class AdaptiveText extends AdaptiveWidget {
     TextDirection textDirection = TextDirection.ltr,
     AdaptiveGroup? group,
     double heightAccurate = 0.7,
-    bool debug = false,
   }) : super(
           key: key,
           text: TextSpan(text: text, style: textStyle),
@@ -31,7 +30,6 @@ class AdaptiveText extends AdaptiveWidget {
     TextDirection textDirection = TextDirection.ltr,
     AdaptiveGroup? group,
     double heightAccurate = 0.7,
-    bool debug = false,
   }) : super(
           key: key,
           text: text,
@@ -55,7 +53,8 @@ class _AdaptiveTextState extends State<AdaptiveText> with AdaptiveState {
         maxLines: widget.maxLines,
         textAlign: widget.textAlign,
         textDirection: widget.textDirection,
-        textScaleFactor: scale,
+         softWrap: widget.maxLines>1,
+         textScaleFactor: scale,
         style: defaultStyle,
       );
 }
