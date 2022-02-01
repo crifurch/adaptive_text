@@ -63,7 +63,6 @@ mixin AdaptiveState<T extends AdaptiveWidget> on State<T> {
   @override
   Widget build(BuildContext context) =>
       LayoutBuilder(builder: (context, constrains) {
-        final now = DateTime.now();
         // _lastMaxHeight ??= constrains.maxHeight;
         // _lastMaxWidth ??= constrains.maxWidth;
         // if (_lastMaxWidth == constrains.maxWidth &&
@@ -98,12 +97,10 @@ mixin AdaptiveState<T extends AdaptiveWidget> on State<T> {
         widget.group?._updateFontSize(this, size * fontScale!);
         if (widget.group != null) {
           final minFont = min(widget.group!._fontSize, size);
-          print(
-              '${span.toPlainText()}\tgroupSize:${widget.group!._fontSize}\tsize:${size * fontScale!}\n');
           fontScale = min(fontScale!, minFont / size);
         }
-        print(
-            '\x1B[31;1;4madaptive:${DateTime.now().difference(now).inMilliseconds}\x1B[0m');
+        // print(
+        //     '\x1B[31;1;4madaptive:${DateTime.now().difference(now).inMilliseconds}\x1B[0m');
         return buildAdaptive(context, widget.text,
             DefaultTextStyle.of(context).style, fontScale!);
       });

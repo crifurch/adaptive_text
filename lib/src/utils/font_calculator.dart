@@ -18,7 +18,7 @@ class FontCalculator {
     int tries = 0,
   }) {
     if (maxLines == 1) {
-      return _proccesSingleLine(
+      return _processSingleLine(
           text: text, scale: scale, constrains: constrains);
     } else {
       return _proccesMultiLine(
@@ -30,7 +30,7 @@ class FontCalculator {
     }
   }
 
-  double _proccesSingleLine({
+  double _processSingleLine({
     required TextSpan text,
     required double scale,
     required BoxConstraints constrains,
@@ -93,7 +93,6 @@ class FontCalculator {
         constrains.biggest,
         constrainWidth: constrains.maxWidth,
       );
-      log3(oe1.toString());
     }
 
     return scale * scaleDown;
@@ -122,17 +121,17 @@ class FontCalculator {
     return overflowEntry;
   }
 
-  log(String message) {
-    print('\x1B[32;1;4m${'=' * 40}\n$message\n${'=' * 40}\x1B[0m');
-  }
-
-  log2(String message) {
-    print('\x1B[31;1;4m${'=' * 40}\n$message\n${'=' * 40}\x1B[0m');
-  }
-
-  log3(String message) {
-    print('\x1B[34;1;4m${'=' * 40}\n$message\n${'=' * 40}\x1B[0m');
-  }
+  // log(String message) {
+  //   print('\x1B[32;1;4m${'=' * 40}\n$message\n${'=' * 40}\x1B[0m');
+  // }
+  //
+  // log2(String message) {
+  //   print('\x1B[31;1;4m${'=' * 40}\n$message\n${'=' * 40}\x1B[0m');
+  // }
+  //
+  // log3(String message) {
+  //   print('\x1B[34;1;4m${'=' * 40}\n$message\n${'=' * 40}\x1B[0m');
+  // }
 
   TextStyle? getBiggestFromSpan(TextSpan span) {
     var resultStyle = span.style;
