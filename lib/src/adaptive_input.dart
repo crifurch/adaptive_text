@@ -267,9 +267,6 @@ class _AdaptiveInputState extends State<AdaptiveInput>
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.canRequestFocus = _isEnabled;
     _focusNode.addListener(_handleFocusChanged);
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-      print(_editableText);
-    });
   }
 
   @override
