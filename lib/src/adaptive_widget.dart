@@ -30,8 +30,6 @@ abstract class AdaptiveWidget extends StatefulWidget {
 
 mixin AdaptiveState<T extends AdaptiveWidget> on State<T> {
   double? fontScale;
-  double? _lastMaxWidth;
-  double? _lastMaxHeight;
 
   @override
   void initState() {

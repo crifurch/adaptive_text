@@ -1,5 +1,6 @@
 import 'dart:ui' as ui show BoxHeightStyle, BoxWidthStyle;
 
+import 'package:adaptive_text/adaptive_text.dart';
 import 'package:adaptive_text/src/adaptive_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -395,66 +396,84 @@ class _AdaptiveInputState extends State<AdaptiveInput>
         break;
     }
 
-     final Widget child = RepaintBoundary(
-      child: EditableText(
-        key: editableTextKey,
-        readOnly: widget.readOnly || !_isEnabled,
-        toolbarOptions: widget.toolbarOptions,
-        showCursor: widget.showCursor,
-        showSelectionHandles: _showSelectionHandles,
-        controller: _controller,
-        focusNode: _focusNode,
-        keyboardType: widget.keyboardType,
-        textInputAction: widget.textInputAction,
-        textCapitalization: widget.textCapitalization,
-        style: style,
+    final Widget child = RepaintBoundary(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          EditableText(
+            key: editableTextKey,
+            readOnly: widget.readOnly || !_isEnabled,
+            toolbarOptions: widget.toolbarOptions,
+            showCursor: widget.showCursor,
+            showSelectionHandles: _showSelectionHandles,
+            controller: _controller,
+            focusNode: _focusNode,
+            keyboardType: widget.keyboardType,
+            textInputAction: widget.textInputAction,
+            textCapitalization: widget.textCapitalization,
+            style: style,
 
-        ///todo CHECK [TextField]
-        //strutStyle: widget.strutStyle,
-        textAlign: widget.textAlign,
-        textDirection: widget.textDirection,
-        autofocus: widget.autofocus,
-        obscuringCharacter: widget.obscuringCharacter,
-        obscureText: widget.obscureText,
-        autocorrect: widget.autocorrect,
-        smartDashesType: widget.smartDashesType,
-        smartQuotesType: widget.smartQuotesType,
-        enableSuggestions: widget.enableSuggestions,
-        maxLines: widget.maxLines,
-        expands: widget.expands,
-        // Only show the selection highlight when the text field is focused.
-        selectionColor: _focusNode.hasFocus ? selectionColor : null,
-        selectionControls:
-            widget.selectionEnabled ? textSelectionControls : null,
-        onChanged: widget.onChanged,
-        onSelectionChanged: _handleSelectionChanged,
-        onEditingComplete: widget.onEditingComplete,
-        onSubmitted: widget.onSubmitted,
-        onAppPrivateCommand: widget.onAppPrivateCommand,
-        onSelectionHandleTapped: _handleSelectionHandleTapped,
-        inputFormatters: formatters,
-        rendererIgnoresPointer: true,
-        mouseCursor: MouseCursor.defer,
-        // TextField will handle the cursor
-        cursorWidth: widget.cursorWidth,
-        cursorHeight: widget.cursorHeight,
-        cursorRadius: cursorRadius,
-        cursorColor: cursorColor,
-        selectionHeightStyle: widget.selectionHeightStyle,
-        selectionWidthStyle: widget.selectionWidthStyle,
-        cursorOpacityAnimates: cursorOpacityAnimates,
-        cursorOffset: cursorOffset,
-        paintCursorAboveText: paintCursorAboveText,
-        backgroundCursorColor: CupertinoColors.inactiveGray,
-        scrollPadding: widget.scrollPadding,
-        keyboardAppearance: keyboardAppearance,
-        enableInteractiveSelection: widget.enableInteractiveSelection,
-        dragStartBehavior: widget.dragStartBehavior,
-        scrollController: widget.scrollController,
-        scrollPhysics: widget.scrollPhysics,
-        autofillClient: this,
-        autocorrectionTextRectColor: autocorrectionTextRectColor,
-        clipBehavior: widget.clipBehavior,
+            ///todo CHECK [TextField]
+            //strutStyle: widget.strutStyle,
+            textAlign: widget.textAlign,
+            textDirection: widget.textDirection,
+            autofocus: widget.autofocus,
+            obscuringCharacter: widget.obscuringCharacter,
+            obscureText: widget.obscureText,
+            autocorrect: widget.autocorrect,
+            smartDashesType: widget.smartDashesType,
+            smartQuotesType: widget.smartQuotesType,
+            enableSuggestions: widget.enableSuggestions,
+            maxLines: widget.maxLines,
+            expands: widget.expands,
+            // Only show the selection highlight when the text field is focused.
+            selectionColor: _focusNode.hasFocus ? selectionColor : null,
+            selectionControls:
+                widget.selectionEnabled ? textSelectionControls : null,
+            onChanged: widget.onChanged,
+            onSelectionChanged: _handleSelectionChanged,
+            onEditingComplete: widget.onEditingComplete,
+            onSubmitted: widget.onSubmitted,
+            onAppPrivateCommand: widget.onAppPrivateCommand,
+            onSelectionHandleTapped: _handleSelectionHandleTapped,
+            inputFormatters: formatters,
+            rendererIgnoresPointer: true,
+            mouseCursor: MouseCursor.defer,
+            // TextField will handle the cursor
+            cursorWidth: widget.cursorWidth,
+            cursorHeight: widget.cursorHeight,
+            cursorRadius: cursorRadius,
+            cursorColor: cursorColor,
+            selectionHeightStyle: widget.selectionHeightStyle,
+            selectionWidthStyle: widget.selectionWidthStyle,
+            cursorOpacityAnimates: cursorOpacityAnimates,
+            cursorOffset: cursorOffset,
+            paintCursorAboveText: paintCursorAboveText,
+            backgroundCursorColor: CupertinoColors.inactiveGray,
+            scrollPadding: widget.scrollPadding,
+            keyboardAppearance: keyboardAppearance,
+            enableInteractiveSelection: widget.enableInteractiveSelection,
+            dragStartBehavior: widget.dragStartBehavior,
+            scrollController: widget.scrollController,
+            scrollPhysics: widget.scrollPhysics,
+            autofillClient: this,
+            autocorrectionTextRectColor: autocorrectionTextRectColor,
+            clipBehavior: widget.clipBehavior,
+          ),
+          if (widget.decoration.hintText != null &&
+              !_focusNode.hasFocus &&
+              _controller.text.isEmpty)
+            AdaptiveText(
+              widget.decoration.hintText!,
+              maxLines: widget.decoration.hintMaxLines ?? widget.maxLines,
+              textStyle: widget.decoration.hintStyle ??
+                  style.merge(const TextStyle(
+                    color: Colors.blueGrey,
+                  )),
+              textAlign: widget.textAlign,
+              textDirection: widget.textDirection,
+            ),
+        ],
       ),
     );
     // if (widget.decoration != null) {
@@ -556,8 +575,7 @@ class _AdaptiveInputState extends State<AdaptiveInput>
   // AutofillClient implementation end.
 
   @override
-  GlobalKey<EditableTextState> get editableTextKey =>
-      _key;
+  GlobalKey<EditableTextState> get editableTextKey => _key;
   final _key = GlobalKey<EditableTextState>();
   @override
   late bool forcePressEnabled;
