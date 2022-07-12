@@ -638,6 +638,7 @@ class _TextFieldSelectionGestureDetectorBuilder
         case TargetPlatform.iOS:
         case TargetPlatform.macOS:
           switch (details.kind) {
+            case PointerDeviceKind.trackpad:
             case PointerDeviceKind.mouse:
             case PointerDeviceKind.stylus:
             case PointerDeviceKind.invertedStylus:
