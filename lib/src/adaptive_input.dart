@@ -1,7 +1,6 @@
 import 'dart:ui' as ui show BoxHeightStyle, BoxWidthStyle;
 
 import 'package:adaptive_text/adaptive_text.dart';
-import 'package:adaptive_text/src/adaptive_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -308,7 +307,7 @@ class _AdaptiveInputState extends State<AdaptiveInput>
     final theme = Theme.of(context);
     final selectionTheme = TextSelectionTheme.of(context);
     final keyboardAppearance =
-        widget.keyboardAppearance ?? theme.primaryColorBrightness;
+        widget.keyboardAppearance ?? theme.brightness;
     final style = defaultStyle.merge(
       text.style?.merge(
         TextStyle(
