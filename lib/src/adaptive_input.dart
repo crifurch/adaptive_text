@@ -56,13 +56,15 @@ class AdaptiveInput extends AdaptiveWidget {
 
   AdaptiveInput(
     String text, {
-    Key? key,
+    super.key,
     TextStyle? textStyle,
-    int maxLines = 1,
-    TextAlign textAlign = TextAlign.start,
-    TextDirection textDirection = TextDirection.ltr,
-    AdaptiveGroup? group,
-    double heightAccurate = 0.7,
+    super.maxLines = 1,
+    super.minFontSize,
+    super.textAlign = TextAlign.start,
+    super.textDirection = TextDirection.ltr,
+    super.group,
+    super.heightAccurate = 0.7,
+    super.haveScrollableBody = true,
     this.controller,
     this.focusNode,
     TextInputType? keyboardType,
@@ -128,13 +130,7 @@ class AdaptiveInput extends AdaptiveWidget {
                     paste: true,
                   )),
         super(
-          key: key,
           text: TextSpan(text: text, style: textStyle),
-          maxLines: maxLines,
-          textAlign: textAlign,
-          textDirection: textDirection,
-          group: group,
-          heightAccurate: heightAccurate,
         );
 
   @override
@@ -272,8 +268,12 @@ class _AdaptiveInputState extends State<AdaptiveInput>
   @override
   void dispose() {
     _focusNode.removeListener(_handleFocusChanged);
-    _focusNode.dispose();
-    _controller.dispose();
+    if (widget.controller != _controller) {
+      _controller.dispose();
+    }
+    if (widget.focusNode != _focusNode) {
+      _focusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -306,8 +306,7 @@ class _AdaptiveInputState extends State<AdaptiveInput>
       TextStyle defaultStyle, double scale) {
     final theme = Theme.of(context);
     final selectionTheme = TextSelectionTheme.of(context);
-    final keyboardAppearance =
-        widget.keyboardAppearance ?? theme.brightness;
+    final keyboardAppearance = widget.keyboardAppearance ?? theme.brightness;
     final style = defaultStyle.merge(
       text.style?.merge(
         TextStyle(

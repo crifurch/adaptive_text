@@ -15,6 +15,7 @@ abstract class AdaptiveWidget extends StatefulWidget {
   final TextSpan text;
   final TextAlign textAlign;
   final TextDirection textDirection;
+  final bool haveScrollableBody;
 
   const AdaptiveWidget({
     Key? key,
@@ -25,6 +26,7 @@ abstract class AdaptiveWidget extends StatefulWidget {
     required this.textDirection,
     this.minFontSize,
     this.group,
+    this.haveScrollableBody = false,
   }) : super(key: key);
 }
 
@@ -87,7 +89,10 @@ mixin AdaptiveState<T extends AdaptiveWidget> on State<T> {
         fontScale = fontCalculator.calculateFont(
           text: span,
           currentFontSize: defaultFontSize!,
-          constrains: constrains,
+          constrains: constrains.copyWith(
+              maxWidth: widget.haveScrollableBody
+                  ? constrains.maxWidth
+                  : double.infinity),
           maxLines: widget.maxLines,
           scale: scale,
         );
