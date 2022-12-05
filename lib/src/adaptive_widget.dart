@@ -91,8 +91,8 @@ mixin AdaptiveState<T extends AdaptiveWidget> on State<T> {
           currentFontSize: defaultFontSize!,
           constrains: constrains.copyWith(
               maxWidth: widget.haveScrollableBody
-                  ? constrains.maxWidth
-                  : double.infinity),
+                  ? double.infinity
+                  : constrains.maxWidth),
           maxLines: widget.maxLines,
           scale: scale,
         );
