@@ -410,7 +410,6 @@ class _AdaptiveInputState extends State<AdaptiveInput>
             textInputAction: widget.textInputAction,
             textCapitalization: widget.textCapitalization,
             style: style,
-
             ///todo CHECK [TextField]
             //strutStyle: widget.strutStyle,
             textAlign: widget.textAlign,
@@ -511,38 +510,37 @@ class _AdaptiveInputState extends State<AdaptiveInput>
       semanticsMaxValueLength = null;
     }
 
-    return FocusTrapArea(
-      focusNode: _focusNode,
-      child: MouseRegion(
+    return MouseRegion(
         cursor: effectiveMouseCursor,
         onEnter: (PointerEnterEvent event) => _handleHover(true),
         onExit: (PointerExitEvent event) => _handleHover(false),
-        child: IgnorePointer(
-          ignoring: !_isEnabled,
-          child: AnimatedBuilder(
-            animation: _controller, // changes the _currentLength
-            builder: (BuildContext context, Widget? child) => Semantics(
-              maxValueLength: semanticsMaxValueLength,
-              currentValueLength: _currentLength,
-              onTap: widget.readOnly
-                  ? null
-                  : () {
-                      if (!_controller.selection.isValid) {
-                        _controller.selection = TextSelection.collapsed(
-                            offset: _controller.text.length);
-                      }
-                      _requestKeyboard();
-                    },
-              onDidGainAccessibilityFocus: handleDidGainAccessibilityFocus,
-              child: child,
-            ),
-            child: _selectionGestureDetectorBuilder.buildGestureDetector(
-              behavior: HitTestBehavior.translucent,
-              child: child,
+        child: TextFieldTapRegion(
+          child: IgnorePointer(
+            ignoring: !_isEnabled,
+            child: AnimatedBuilder(
+              animation: _controller, // changes the _currentLength
+              builder: (BuildContext context, Widget? child) => Semantics(
+                maxValueLength: semanticsMaxValueLength,
+                currentValueLength: _currentLength,
+                onTap: widget.readOnly
+                    ? null
+                    : () {
+                        if (!_controller.selection.isValid) {
+                          _controller.selection = TextSelection.collapsed(
+                              offset: _controller.text.length);
+                        }
+                        _requestKeyboard();
+                      },
+                onDidGainAccessibilityFocus: handleDidGainAccessibilityFocus,
+                child: child,
+              ),
+              child: _selectionGestureDetectorBuilder.buildGestureDetector(
+                behavior: HitTestBehavior.translucent,
+                child: child,
+              ),
             ),
           ),
         ),
-      ),
     );
   }
 
