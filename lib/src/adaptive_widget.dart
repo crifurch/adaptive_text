@@ -18,7 +18,7 @@ abstract class AdaptiveWidget extends StatefulWidget {
   final bool haveScrollableBody;
 
   const AdaptiveWidget({
-    Key? key,
+    super.key,
     required this.maxLines,
     required this.heightAccurate,
     required this.text,
@@ -27,7 +27,7 @@ abstract class AdaptiveWidget extends StatefulWidget {
     this.minFontSize,
     this.group,
     this.haveScrollableBody = false,
-  }) : super(key: key);
+  });
 }
 
 mixin AdaptiveState<T extends AdaptiveWidget> on State<T> {
@@ -102,8 +102,6 @@ mixin AdaptiveState<T extends AdaptiveWidget> on State<T> {
           final minFont = min(widget.group!._fontSize, size);
           fontScale = min(fontScale!, minFont / size);
         }
-        // print(
-        //     '\x1B[31;1;4madaptive:${DateTime.now().difference(now).inMilliseconds}\x1B[0m');
         return buildAdaptive(context, widget.text,
             DefaultTextStyle.of(context).style, fontScale!);
       });
