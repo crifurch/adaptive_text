@@ -41,8 +41,8 @@ class _AdaptiveTextState extends State<AdaptiveText> with AdaptiveState {
         maxLines: widget.maxLines,
         textAlign: widget.textAlign,
         textDirection: widget.textDirection,
-         softWrap: widget.maxLines>1,
-         textScaleFactor: scale,
+        softWrap: widget.maxLines > 1,
+        textScaler: TextScaler.linear(scale),
         style: defaultStyle,
       );
 }

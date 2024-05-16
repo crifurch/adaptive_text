@@ -82,9 +82,9 @@ mixin AdaptiveState<T extends AdaptiveWidget> on State<T> {
         defaultFontSize ??= DefaultTextStyle.of(context).style.fontSize;
         final scale = MediaQuery.textScaleFactorOf(context);
         final span = TextSpan(
-          text: widget.text.text,
+          text: '',
           style: DefaultTextStyle.of(context).style.merge(widget.text.style),
-          children: widget.text.children,
+          children: [widget.text],
         );
         fontScale = fontCalculator.calculateFont(
           text: span,

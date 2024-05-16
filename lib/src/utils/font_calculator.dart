@@ -34,6 +34,7 @@ class FontCalculator {
     required TextSpan text,
     required double scale,
     required BoxConstraints constrains,
+    bool recurse = false,
   }) {
     final tp = TextPainter(
       text: text,
@@ -46,15 +47,24 @@ class FontCalculator {
     tp.layout(maxWidth: double.infinity);
     var scaleHeight = 1.0;
     var scaleWidth = 1.0;
-    final textHeight = tp.height;
-    final textWidth = tp.width;
+    final textHeight = tp.height.ceilToDouble();
+    final textWidth = tp.width.ceilToDouble();
     if (textWidth > constrains.maxWidth) {
-      scaleWidth = constrains.maxWidth / textWidth;
+      scaleWidth *= constrains.maxWidth / textWidth;
     }
     if (textHeight > constrains.maxHeight) {
-      scaleHeight = constrains.maxHeight / textHeight;
+      scaleHeight *= constrains.maxHeight / textHeight;
     }
-    return min(scaleHeight, scaleWidth) * scale;
+    final result = min(scaleHeight, scaleWidth) * scale;
+    if (!recurse) {
+      return _processSingleLine(
+        text: text,
+        scale: result,
+        constrains: constrains,
+        recurse: true,
+      );
+    }
+    return result;
   }
 
   double _proccesMultiLine({
@@ -62,7 +72,6 @@ class FontCalculator {
     required double scale,
     required BoxConstraints constrains,
     required int maxlines,
-
   }) {
     var oe1 = checkFitsOverflow(
       text,
@@ -109,13 +118,13 @@ class FontCalculator {
       textScaleFactor: scale,
     );
     tp.layout(maxWidth: constrainWidth ?? double.maxFinite);
-   // final lines = tp.computeLineMetrics();
+    // final lines = tp.computeLineMetrics();
     final overflowEntry = OverflowEntry(
       Size(
         max(tp.width - container.width, 0),
         max(tp.height - container.height, 0),
       ),
-      0,//max(lines.length - maxLines, 0),
+      0, //max(lines.length - maxLines, 0),
     );
 
     return overflowEntry;
